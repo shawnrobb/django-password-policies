@@ -13,6 +13,7 @@ from django.views.generic.base import View
 from django.views.generic.edit import FormView
 from django.views.decorators.cache import never_cache
 from django.views.decorators.csrf import csrf_protect
+from django.http import HttpResponseRedirect
 
 from password_policies.conf import settings
 from password_policies.forms import PasswordPoliciesForm
@@ -30,8 +31,10 @@ A view mixin which verifies that the user has not authenticated.
 
     def dispatch(self, request, *args, **kwargs):
         if request.user.is_authenticated():
-            template_name = settings.TEMPLATE_403_PAGE
-            return permission_denied(request, template_name=template_name)
+            # if the user is logged in, redirect them to the change password page as this is more helpful
+            return HttpResponseRedirect(reverse('change_password', kwargs={'obj_uuid': request.user.obj_uuid}))
+            # template_name = settings.TEMPLATE_403_PAGE
+            # return permission_denied(request, template_name=template_name)
         return super(LoggedOutMixin, self).dispatch(request, *args, **kwargs)
 
 
